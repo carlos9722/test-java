@@ -56,4 +56,15 @@ class ApiKeyFilterTest {
         assertEquals(200, response.getStatus());
         assertNotNull(chain.getRequest());
     }
+
+    @Test
+    void laConsolaH2NoSeFiltra() throws ServletException, IOException {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/h2-console/login.do");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, response, chain);
+
+        assertNotNull(chain.getRequest());
+    }
 }

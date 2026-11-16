@@ -52,4 +52,9 @@ public class ApiKeyFilter extends OncePerRequestFilter {
                         + "\"mensaje\":\"%s\",\"detalles\":[]}",
                 LocalDateTime.now(), MENSAJE));
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/h2-console");
+    }
 }
