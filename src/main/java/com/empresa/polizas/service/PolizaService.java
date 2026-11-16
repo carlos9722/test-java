@@ -1,3 +1,4 @@
+
 package com.empresa.polizas.service;
 
 import com.empresa.polizas.config.IpcProperties;
@@ -6,6 +7,7 @@ import com.empresa.polizas.dto.RiesgoResponse;
 import com.empresa.polizas.entity.Poliza;
 import com.empresa.polizas.enums.EstadoPoliza;
 import com.empresa.polizas.enums.TipoPoliza;
+import com.empresa.polizas.enums.EventoCore;
 import com.empresa.polizas.exception.RecursoNoEncontradoException;
 import com.empresa.polizas.exception.ReglaNegocioException;
 import com.empresa.polizas.repository.PolizaRepository;
@@ -20,10 +22,14 @@ public class PolizaService {
 
     private final PolizaRepository polizaRepository;
     private final IpcProperties ipcProperties;
+    private final CoreEventService coreEventService;
 
-    public PolizaService(PolizaRepository polizaRepository, IpcProperties ipcProperties) {
+    public PolizaService(PolizaRepository polizaRepository,
+                         IpcProperties ipcProperties,
+                         CoreEventService coreEventService) {
         this.polizaRepository = polizaRepository;
         this.ipcProperties = ipcProperties;
+        this.coreEventService = coreEventService;
     }
 
     public List<PolizaResponse> listar(TipoPoliza tipo, EstadoPoliza estado) {
@@ -45,6 +51,7 @@ public class PolizaService {
             throw new ReglaNegocioException("No se puede renovar una póliza cancelada");
         }
         poliza.renovar(ipcProperties.ipc());
+        coreEventService.enviarEvento(EventoCore.ACTUALIZACION, polizaId);
         return PolizaResponse.from(poliza);
     }
 
@@ -55,6 +62,7 @@ public class PolizaService {
             throw new ReglaNegocioException("La póliza ya se encuentra cancelada");
         }
         poliza.cancelar();
+        coreEventService.enviarEvento(EventoCore.ACTUALIZACION, polizaId);
         return PolizaResponse.from(poliza);
     }
 

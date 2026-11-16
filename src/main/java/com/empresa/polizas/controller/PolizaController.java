@@ -1,0 +1,63 @@
+package com.empresa.polizas.controller;
+
+import com.empresa.polizas.dto.CrearRiesgoRequest;
+import com.empresa.polizas.dto.PolizaResponse;
+import com.empresa.polizas.dto.RiesgoResponse;
+import com.empresa.polizas.enums.EstadoPoliza;
+import com.empresa.polizas.enums.TipoPoliza;
+import com.empresa.polizas.service.PolizaService;
+import com.empresa.polizas.service.RiesgoService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/polizas")
+public class PolizaController {
+
+    private final PolizaService polizaService;
+    private final RiesgoService riesgoService;
+
+    public PolizaController(PolizaService polizaService, RiesgoService riesgoService) {
+        this.polizaService = polizaService;
+        this.riesgoService = riesgoService;
+    }
+
+    @GetMapping
+    public List<PolizaResponse> listar(
+            @RequestParam(name = "tipo", required = false) TipoPoliza tipo,
+            @RequestParam(name = "estado", required = false) EstadoPoliza estado) {
+        return polizaService.listar(tipo, estado);
+    }
+
+    @GetMapping("/{id}/riesgos")
+    public List<RiesgoResponse> obtenerRiesgos(@PathVariable("id") Long id) {
+        return polizaService.obtenerRiesgos(id);
+    }
+
+    @PostMapping("/{id}/renovar")
+    public PolizaResponse renovar(@PathVariable("id") Long id) {
+        return polizaService.renovar(id);
+    }
+
+    @PostMapping("/{id}/cancelar")
+    public PolizaResponse cancelar(@PathVariable("id") Long id) {
+        return polizaService.cancelar(id);
+    }
+
+    @PostMapping("/{id}/riesgos")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RiesgoResponse agregarRiesgo(@PathVariable("id") Long id,
+                                        @Valid @RequestBody CrearRiesgoRequest request) {
+        return riesgoService.agregar(id, request);
+    }
+}
